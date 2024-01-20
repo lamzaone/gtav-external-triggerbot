@@ -13,3 +13,8 @@ Very simple GTAV trigger bot for default crosshair
 ```
 pip install -r requirements.txt
 ```
+
+to compile
+```
+pyinstaller --onefile .\main.py -n trigger.exe
+```
