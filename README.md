@@ -1,6 +1,6 @@
 # GTAV/FIVEM external triggerbot
 
-Very simple  GTAV trigger bot for default crosshair made in python
+Very simple GTAV trigger bot for default crosshair made in python
 - Undetected
 - Completely external
 
