@@ -4,6 +4,9 @@ Very simple GTAV trigger bot for default crosshair made in python
 - Undetected
 - Completely external
 
+  
+Remaining unnoticed by anti-cheat systems and similar measures **doesn't** justify or encourage cheating in multiplayer games.
+
   The script checks the color of the pixel in the middle of the screen while you hold down rightclick.
 
   If an enemy NPC/player walks in front of it, the color changes to a dark red, which the script detects, and then sends clicks in random bursts.
@@ -18,3 +21,4 @@ to compile
 ```
 pyinstaller --onefile .\main.py -n trigger.exe
 ```
+
