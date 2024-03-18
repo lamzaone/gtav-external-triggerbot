@@ -8,7 +8,7 @@ from pynput.mouse import Listener, Button
 import os
 
 
-version = "1.5.4" # exactly what it says
+version = "1.5.5" # exactly what it says
 running = True # Whether or not the triggerbot is running
 alive = True # Whether or not the main loop is running, used to kill the script completely
 right_mouse_pressed = False # Whether or not the right mouse button is pressed
@@ -18,23 +18,14 @@ kill_script_keybind = "END"
 toggle_running_keybind = "left_alt" 
 
 
+def resize_terminal():
+    os.system("mode con cols=53 lines=15")
 
 # Function to update the status line to reflect the state of the triggerbot
 def update_status():
     status_text = "[CURRENTLY: {}]".format("ON  " if running else "OFF ") # If the triggerbot is running, display ON, otherwise display OFF
     status_line = f"LEFT ALT - TOGGLE ON/OFF {status_text}".center(52)
     print("\r{}".format(status_line), end='', flush=True) # using \r to overwrite the previous line in the terminal
-
-# Function to resize the terminal window
-def resize_terminal(width, height):
-    try:
-        os.system(f"resize -s {height} {width}")
-    except Exception as e:
-        print(f"Error resizing terminal: {e}")
-
-resize_terminal(53, 15)
-os.system("mode con cols=53 lines=15")
-
 
 
 
@@ -84,26 +75,34 @@ def check():
 keyboard.add_hotkey(toggle_running_keybind, toggle_running) # Toggle the triggerbot on/off
 keyboard.add_hotkey(kill_script_keybind, kill_script) # Kill the script
 
-os.system('cls')
-version_msg = "v"+version+" by Azazel"
-print("  ____  _          _ _")
-print(" / ___|| | ___   _| | | https://discord.gg/RxcMj7x5Bx")
-print(" \___ \| |/ / | | | | |         ")
-print("  ___) |   <| |_| | | | ____                _")
-print(" |____/|_|\_\\\\__,_|_|_|/ ___|__ _ _ __   __| |_   _")
-print("                      | |   / _` | '_ \ / _` | | | |")
-print("                      | |__| (_| | | | | (_| | |_| |")
-print("                       \____\__,_|_| |_|\__,_|\__, |")
-print("                                              |___/ ")
-print("====================================================")
-print(f"{version_msg.center(52)}")
-print("====================================================")
-print("END - KILL SCRIPT".center(52))
-update_status()
+
+def print_header():
+    os.system('cls')
+    version_msg = "v"+version+" by Azazel"
+    print("  ____  _          _ _")
+    print(" / ___|| | ___   _| | | https://discord.gg/RxcMj7x5Bx")
+    print(" \___ \| |/ / | | | | |         ")
+    print("  ___) |   <| |_| | | | ____                _")
+    print(" |____/|_|\_\\\\__,_|_|_|/ ___|__ _ _ __   __| |_   _")
+    print("                      | |   / _` | '_ \ / _` | | | |")
+    print("                      | |__| (_| | | | | (_| | |_| |")
+    print("                       \____\__,_|_| |_|\__,_|\__, |")
+    print("                                              |___/ ")
+    print("====================================================")
+    print(f"{version_msg.center(52)}")
+    print("====================================================")
+    print("END - KILL SCRIPT".center(52))
+    update_status()
 
 
 # Main loop
+print_header()
 while alive: # While alive is True, run the main loop
+    if os.get_terminal_size().columns != 53 or os.get_terminal_size().lines != 15:
+        resize_terminal()
+        time.sleep(0.1)
+        print_header()
+
     if running and right_mouse_pressed: # If the triggerbot is running and the right mouse button is pressed, run the check function in a separate thread
         color_check_thread = threading.Thread(target=check) # This is done to prevent the main loop from being blocked by the check function
         color_check_thread.start() # Start the thread

@@ -1,1 +1,4 @@
 /.venv
+/build/skullcandy.exe
+/dist
+/skullcandy.exe.spec
