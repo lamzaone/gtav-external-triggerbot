@@ -81,12 +81,14 @@ mouse_listener.start()
 # ================ PIXEL COLOR DETECTION =================
 x = user.GetSystemMetrics(0) // 2 
 y = user.GetSystemMetrics(1) // 2
-search_color = 12668751 #7002955
+search_color = 5197761 #7002955
 
 def get_pixel():
     return gdi.GetPixel(dc, x, y)
 
 def check():
+    global search_color
+    print(get_pixel())
     if get_pixel() == search_color:
         pyautogui.mouseDown()
         time.sleep(random.uniform(0.06, 0.2))
