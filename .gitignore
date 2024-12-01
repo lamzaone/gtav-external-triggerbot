@@ -2,3 +2,5 @@
 /build/skullcandy.exe
 /dist
 /skullcandy.exe.spec
+/output
+/venv
