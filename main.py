@@ -8,7 +8,7 @@ from pynput.mouse import Listener, Button
 import os
 from ctypes import *
 
-version = "1.6.0"
+version = "2.0.0"
 
 
 
@@ -51,6 +51,7 @@ def print_header():
     print(f"{toggle_running_keybind.upper()} - TOGGLE ON/OFF".center(52))
     print(f"{change_pixel_color_keybind.upper()} - UPDATE PIXEL COLOR".center(52))
     
+
 def kill_script():
     global alive
     winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
@@ -80,7 +81,7 @@ mouse_listener.start()
 # ================ PIXEL COLOR DETECTION =================
 x = user.GetSystemMetrics(0) // 2 
 y = user.GetSystemMetrics(1) // 2
-search_color = 7002955
+search_color = 12668751 #7002955
 
 def get_pixel():
     return gdi.GetPixel(dc, x, y)
