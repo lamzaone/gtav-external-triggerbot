@@ -88,7 +88,6 @@ def get_pixel():
 
 def check():
     global search_color
-    print(get_pixel())
     if get_pixel() == search_color:
         pyautogui.mouseDown()
         time.sleep(random.uniform(0.06, 0.2))
