@@ -1,5 +1,12 @@
 # GTAV/FIVEM external triggerbot
 
+## Version 2.0.0 Changelog - Performance update
+  - **Removed Discord Link**: The Discord link has been removed from the terminal window for a cleaner experience.
+  - **Customizable Pixel Search Color**: Users can now change the pixel search color, with the default key set to Left Ctrl.
+  - **Enhanced Pixel Detection**: Pixel detection performance has been boosted by approximately 60%, leveraging ctypes to integrate C++ libraries.This version now has a very good reaction time, giving you a big edge over your opponents.
+
+---
+
 Very simple GTAV trigger bot for default crosshair made in python.
 
 made out of boredom and pure curiousity of how well could pixel detection work in automating tasks inside videogames.
