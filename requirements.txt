@@ -2,3 +2,4 @@ keyboard
 pyautogui
 pynput
 pyinstaller
+pywin32
