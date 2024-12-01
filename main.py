@@ -1,86 +1,42 @@
 import random
-import threading
+from win32process import REALTIME_PRIORITY_CLASS
 import time
 import winsound
 import keyboard
 import pyautogui
 from pynput.mouse import Listener, Button
 import os
+from ctypes import *
+
+version = "1.6.0"
 
 
-version = "1.5.5" # exactly what it says
-running = True # Whether or not the triggerbot is running
-alive = True # Whether or not the main loop is running, used to kill the script completely
-right_mouse_pressed = False # Whether or not the right mouse button is pressed
 
-# define the keybinds
-kill_script_keybind = "END"
-toggle_running_keybind = "left_alt" 
+# =================== KEYBINDS ===================
 
+kill_script_keybind = "END"                       # PANIC KEY (kills the script)
+toggle_running_keybind = "left_alt"               # TOGGLE ON/OFF
+change_pixel_color_keybind = "left_ctrl"          # CHANGE PIXEL COLOR
+
+
+# ================== UTILITIES ===================
+
+user = windll.LoadLibrary("user32.dll")     # User32.dll
+dc = user.GetDC(0)                          # Device context
+gdi = windll.LoadLibrary("gdi32.dll")       # Graphics Device Interface
+
+running = True                              # Running state
+alive = True                                # Alive state
+right_mouse_pressed = False                 # Right mouse button pressed state
 
 def resize_terminal():
-    os.system("mode con cols=53 lines=15")
-
-# Function to update the status line to reflect the state of the triggerbot
-def update_status():
-    status_text = "[CURRENTLY: {}]".format("ON  " if running else "OFF ") # If the triggerbot is running, display ON, otherwise display OFF
-    status_line = f"LEFT ALT - TOGGLE ON/OFF {status_text}".center(52)
-    print("\r{}".format(status_line), end='', flush=True) # using \r to overwrite the previous line in the terminal
-
-
-
-
-# Function to toggle the main loop
-def kill_script():
-    global alive
-    winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
-    alive = not alive
-
-
-# Function to toggle the triggerbot on/off
-def toggle_running():
-    global running
-    running = not running
-    update_status() # call update_status to update the status line in the terminal window
-    if running:
-        winsound.PlaySound("SystemHand", winsound.SND_ASYNC)
-    else:                  # yay sounds
-        winsound.PlaySound("SystemExit", winsound.SND_ASYNC)
-
-
-
-
-# Function to handle mouse click events
-def on_click(x, y, button, pressed):
-    global right_mouse_pressed
-    if button == Button.right:
-        right_mouse_pressed = pressed # Set right_mouse_pressed to True if the right mouse button is pressed, otherwise set it to False
-
-# Set up the mouse listener
-mouse_listener = Listener(on_click=on_click)
-mouse_listener.start()
-
-# Get the center of the screen
-x = pyautogui.size().width // 2
-y = pyautogui.size().height // 2
-
-# Function to check the color of the pixel at the center of the screen
-def check():
-    if pyautogui.pixel(x, y)[0] == 193: # Check if the pixel at the center of the screen is red
-        pyautogui.mouseDown() # If it is, hold down the left mouse button
-        time.sleep(random.uniform(0.06, 0.2)) # Wait a random amount of time between 0.06 and 0.2 seconds
-        pyautogui.mouseUp() # Release the left mouse button
-
-# Set up the hotkeys
-keyboard.add_hotkey(toggle_running_keybind, toggle_running) # Toggle the triggerbot on/off
-keyboard.add_hotkey(kill_script_keybind, kill_script) # Kill the script
+    os.system("mode con cols=53 lines=16")
 
 
 def print_header():
     os.system('cls')
-    version_msg = "v"+version+" by Azazel"
     print("  ____  _          _ _")
-    print(" / ___|| | ___   _| | | https://discord.gg/RxcMj7x5Bx")
+    print(" / ___|| | ___   _| | |           github.com/lamzaone")
     print(" \___ \| |/ / | | | | |         ")
     print("  ___) |   <| |_| | | | ____                _")
     print(" |____/|_|\_\\\\__,_|_|_|/ ___|__ _ _ __   __| |_   _")
@@ -89,28 +45,78 @@ def print_header():
     print("                       \____\__,_|_| |_|\__,_|\__, |")
     print("                                              |___/ ")
     print("====================================================")
-    print(f"{version_msg.center(52)}")
+    print(f"v{version}".center(52))
     print("====================================================")
-    print("END - KILL SCRIPT".center(52))
-    update_status()
+    print(f"{kill_script_keybind.upper()} - PANIC KEY".center(52))
+    print(f"{toggle_running_keybind.upper()} - TOGGLE ON/OFF".center(52))
+    print(f"{change_pixel_color_keybind.upper()} - UPDATE PIXEL COLOR".center(52))
+    
+def kill_script():
+    global alive
+    winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
+    alive = not alive
+
+def toggle_running():
+    global running
+    running = not running
+    if running:
+        # winsound.PlaySound("SystemHand", winsound.SND_ASYNC)
+        pass
+    else:                 
+        winsound.PlaySound("SystemExit", winsound.SND_ASYNC)
 
 
-# Main loop
+
+# ==================== MOUSE LISTENER ====================
+def on_click(x, y, button, pressed):
+    global right_mouse_pressed
+    if button == Button.right:
+        right_mouse_pressed = pressed 
+
+mouse_listener = Listener(on_click=on_click)
+mouse_listener.start()
+
+
+# ================ PIXEL COLOR DETECTION =================
+x = user.GetSystemMetrics(0) // 2 
+y = user.GetSystemMetrics(1) // 2
+search_color = 7002955
+
+def get_pixel():
+    return gdi.GetPixel(dc, x, y)
+
+def check():
+    if get_pixel() == search_color:
+        pyautogui.mouseDown()
+        time.sleep(random.uniform(0.06, 0.2))
+        pyautogui.mouseUp()
+
+def change_pixel_color():
+    global search_color
+    search_color = get_pixel()
+
+
+# ================= SET PRIORITY ===================
+kernel32 = windll.kernel32
+pid = os.getpid()
+handle = kernel32.OpenProcess(0x1F0FFF, False, pid)                 # full access rights handle
+kernel32.SetPriorityClass(handle, REALTIME_PRIORITY_CLASS)          # -20 is the highest priority
+kernel32.CloseHandle(handle)                                        # close the handle to prevent memory leaks 
+
+# ==================== MAIN LOOP ===================
+keyboard.add_hotkey(toggle_running_keybind, toggle_running)
+keyboard.add_hotkey(kill_script_keybind, kill_script)
+keyboard.add_hotkey(change_pixel_color_keybind, change_pixel_color)
+
 print_header()
-while alive: # While alive is True, run the main loop
-    if os.get_terminal_size().columns != 53 or os.get_terminal_size().lines != 15:
+while alive:
+    if os.get_terminal_size().columns != 53 or os.get_terminal_size().lines != 16:
         resize_terminal()
-        time.sleep(0.1)
         print_header()
 
-    if running and right_mouse_pressed: # If the triggerbot is running and the right mouse button is pressed, run the check function in a separate thread
-        color_check_thread = threading.Thread(target=check) # This is done to prevent the main loop from being blocked by the check function
-        color_check_thread.start() # Start the thread
-        color_check_thread.join() # Wait for the thread to finish
-    time.sleep(0.0005) # Sleep for 0.0005 seconds to prevent the script from using too much CPU
-
-
-
+    while running and right_mouse_pressed: # If the triggerbot is running and the right mouse button is pressed, run the check function in a separate thread
+        check()
+    time.sleep(0.001) # Sleep for 0.0005 seconds to prevent the script from using too much CPU
 
 # Stop the mouse listener
 mouse_listener.stop()
