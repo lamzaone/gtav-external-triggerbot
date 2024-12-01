@@ -2,7 +2,7 @@
 
 Very simple GTAV trigger bot for default crosshair made in python.
 
-made out of boredon and pure curiousity of how well could pixel detection work in automating tasks inside videogames.
+made out of boredom and pure curiousity of how well could pixel detection work in automating tasks inside videogames.
 Why triggerbot and not something else? I don't know, this is the first thing that i thought of where the execution and reaction time would be this crucial.
 
 
